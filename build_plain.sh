@@ -1,43 +1,32 @@
 #!/usr/bin/env bash
-# find . -maxdepth 1 -name "*.txt" -o -name "*.sh" | entr -c ./build.sh
+# To avoid manually re-run things, run this in another shell:
+#   find . -maxdepth 1 -name "*.txt" -o -name "*.sh" | entr -c ./build_plain.sh
 export PATH=/media/jbech/TSHB_LINUX/devel/llvm-project/build_v9/bin:$PATH
 
 cd /media/jbech/TSHB_LINUX/devel/cmake-helloworld
+
+# Full path to reduce likelihood of rm -rf the wrong stuff.
 rm -f /media/jbech/TSHB_LINUX/devel/cmake-helloworld/*.o
 rm -f /media/jbech/TSHB_LINUX/devel/cmake-helloworld/helloworld
 clear
-#cmake .. && make && file helloworld
-#CC='clang' 
 
+GCC_PATH=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32
 TRIPLET=armv7a-linux-gnueabihf
-
-SYSROOT=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-none-linux-gnueabihf/libc
-
-#GCCTOOLCHAIN=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32
-GCCTOOLCHAIN=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/bin
-#GCCTOOLCHAIN=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/lib/gcc/arm-none-linux-gnueabihf
-
-LIBS=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/lib/gcc/arm-none-linux-gnueabihf/9.2.1
-
-INCLUDES=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-none-linux-gnueabihf/libc/usr/include
-
-FLAGS=
+SYSROOT=${GCC_PATH}/arm-none-linux-gnueabihf/libc
+LIBS=${GCC_PATH}/lib/gcc/arm-none-linux-gnueabihf/9.2.1
 
 clang \
-	-v \
 	-target ${TRIPLET} \
-	-march=armv7-a \
-	-mfloat-abi=hard \
 	-fuse-ld=lld \
-	-nostdlib \
 	-lc \
-	-lgcc \
 	--sysroot=${SYSROOT} \
-	--gcc-toolchain=${GCCTOOLCHAIN} \
 	-L${LIBS} \
-	-I${INCLUDES} \
+	-B${LIBS} \
 	main.c \
 	-o helloworld
 
 echo -e "\nFile type:\n=========="
 file helloworld
+
+echo -e "\nRunning:\n=========="
+qemu-arm -L ${SYSROOT} helloworld
