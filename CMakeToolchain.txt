@@ -1,3 +1,24 @@
-set (CMAKE_SYSTEM_NAME Linux)
+# https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-using-clang
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+set (CMAKE_TOOLCHAIN_FILE CMakeToolchain.txt)
 
-set (CMAKE_SYSTEM_PROCESSOR arm)
+set(GCC_PATH /media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32)
+set(CLANG_PATH /media/jbech/TSHB_LINUX/devel/llvm-project/build_v9/bin)
+
+set(triple armv7a-linux-gnueabihf)
+set(CMAKE_LIBRARY_ARCHITECTURE ${triple}) # FIND_LIBRARY search subdir
+
+set(CMAKE_SYSROOT ${GCC_PATH}/arm-none-linux-gnueabihf/libc)
+set(CMAKE_C_COMPILER ${CLANG_PATH}/clang)
+set(CMAKE_C_COMPILER_TARGET ${triple})
+set(CMAKE_ASM_COMPILER_TARGET ${triple})
+set (CMAKE_ASM_FLAGS --target=${triple}) # -march=armv8-a)
+# https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_EXTERNAL_TOOLCHAIN.html#variable:CMAKE_%3CLANG%3E_COMPILER_EXTERNAL_TOOLCHAIN
+set(CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN ${GCC_PATH})
+
+set(GCC_LIBS ${GCC_LIBS}/lib/gcc/arm-none-linux-gnueabihf/9.2.1)
+
+#set(CMAKE_C_LINK_EXECUTABLE ${GCC_PATH}/bin/arm-linux-gnueabihf-ld)
+set(CMAKE_C_LINKER_FLAGS -Wl,--build-id -fuse-ld=lld)
+#set(CMAKE_EXE_LINKER_FLAGS -fuse-ld=lld)

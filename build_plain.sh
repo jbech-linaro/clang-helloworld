@@ -16,6 +16,7 @@ SYSROOT=${GCC_PATH}/arm-none-linux-gnueabihf/libc
 LIBS=${GCC_PATH}/lib/gcc/arm-none-linux-gnueabihf/9.2.1
 
 clang \
+	-v \
 	-target ${TRIPLET} \
 	-fuse-ld=lld \
 	-lc \
